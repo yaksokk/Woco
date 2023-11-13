@@ -1,9 +1,9 @@
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import FastImage from 'react-native-fast-image';
 import {Receipt21, Clock, Message} from 'iconsax-react-native';
-import React from 'react';
-import { fontType, colors } from '../theme';
 import {useNavigation} from '@react-navigation/native';
+import FastImage from 'react-native-fast-image';
+import { fontType, colors } from '../theme';
+import React from 'react';
 
 const ItemSmall = ({item}) => {
   const navigation = useNavigation();
