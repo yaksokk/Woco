@@ -16,7 +16,7 @@ const SearchBar = ({searchPhrase, setSearchPhrase}) => {
   useEffect(() => {
     Animated.timing(animation, {
       toValue: 1,
-      duration: 400,
+      duration: 500,
       useNativeDriver: false,
     }).start();
   }, []);
