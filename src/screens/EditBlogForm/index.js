@@ -1,39 +1,12 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator} from 'react-native';
 import {ArrowLeft} from 'iconsax-react-native';
 import {useNavigation} from '@react-navigation/native';
 import {fontType, colors} from '../../theme';
 import axios from 'axios';
 
-const AddBlogForm = () => {
-  const [loading, setLoading] = useState(false);
-
-  const handleUpload = async () => {
-    setLoading(true);
-    try {
-      await axios
-        .post('https://65641fc9ceac41c0761d7695.mockapi.io/wocoapp/blog', {
-          title: blogData.title,
-          category: blogData.category,
-          image,
-          content: blogData.content,
-          totalComments: blogData.totalComments,
-          totalLikes: blogData.totalLikes,
-          createdAt: new Date(),
-        })
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-      setLoading(false);
-      navigation.navigate('Profile');
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
+const EditBlogForm = ({route}) => {
+const {blogId} = route.params;
   const dataCategory = [
     {id: 1, name: 'Food'},
     {id: 2, name: 'Sports'},
@@ -59,6 +32,55 @@ const AddBlogForm = () => {
   };
   const [image, setImage] = useState(null);
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    getBlogById();
+  }, [blogId]);
+
+  const getBlogById = async () => {
+    try {
+      const response = await axios.get(
+        `https://65641fc9ceac41c0761d7695.mockapi.io/wocoapp/blog${blogId}`,
+      );
+      setBlogData({
+        title : response.data.title,
+        content : response.data.content,
+        category : {
+            id : response.data.category.id,
+            name : response.data.category.name
+        }
+      })
+    setImage(response.data.image)
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const handleUpdate = async () => {
+    setLoading(true);
+    try {
+      await axios
+        .put(`https://65641fc9ceac41c0761d7695.mockapi.io/wocoapp/blog${blogId}`, {
+          title: blogData.title,
+          category: blogData.category,
+          image,
+          content: blogData.content,
+          totalComments: blogData.totalComments,
+          totalLikes: blogData.totalLikes,
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      setLoading(false);
+      navigation.navigate('Profile');
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -66,7 +88,7 @@ const AddBlogForm = () => {
           <ArrowLeft color={colors.black()} variant="Linear" size={24} />
         </TouchableOpacity>
         <View style={{flex: 1, alignItems: 'center'}}>
-          <Text style={styles.title}>Write blog</Text>
+          <Text style={styles.title}>Edit blog</Text>
         </View>
       </View>
       <ScrollView
@@ -140,8 +162,8 @@ const AddBlogForm = () => {
         </View>
       </ScrollView>
       <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.button} onPress={handleUpload}>
-          <Text style={styles.buttonLabel}>Upload</Text>
+        <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+          <Text style={styles.buttonLabel}>Update</Text>
         </TouchableOpacity>
       </View>
       {loading && (
@@ -153,7 +175,7 @@ const AddBlogForm = () => {
   );
 };
 
-export default AddBlogForm;
+export default EditBlogForm;
 
 const styles = StyleSheet.create({
   container: {

@@ -8,7 +8,7 @@ import {
 } from 'iconsax-react-native';
 import {fontType, colors} from '../theme';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
-import {Home, Discover, Bookmark, Profile, BlogDetail, Search, AddBlogForm} from '../screens';
+import {Home, Discover, Bookmark, Profile, BlogDetail, Search, AddBlogForm, EditBlogForm} from '../screens';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -124,6 +124,18 @@ const Router = () => {
       <Stack.Screen
         name="AddBlog"
         component={AddBlogForm}
+        options={{
+          headerShown: false,
+          animationEnabled: true,
+          animationTypeForReplace: 'pop',
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
+          ...TransitionPresets.SlideFromRightIOS,
+        }}
+      />
+      <Stack.Screen
+        name="EditBlog"
+        component={EditBlogForm}
         options={{
           headerShown: false,
           animationEnabled: true,
