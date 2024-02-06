@@ -8,7 +8,19 @@ import {
 } from 'iconsax-react-native';
 import {fontType, colors} from '../theme';
 import {createStackNavigator, TransitionPresets} from '@react-navigation/stack';
-import {Home, Discover, Bookmark, Profile, BlogDetail, Search, AddBlogForm, EditBlogForm} from '../screens';
+import {
+  Home,
+  Discover,
+  Bookmark,
+  Profile,
+  BlogDetail,
+  Search,
+  AddBlogForm,
+  EditBlogForm,
+  SplashScreen,
+  Login,
+  Register
+} from '../screens';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -95,7 +107,7 @@ function MainApp() {
 }
 const Router = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="SplashScreen">
       <Stack.Screen
         name="MainApp"
         component={MainApp}
@@ -144,6 +156,21 @@ const Router = () => {
           gestureDirection: 'horizontal',
           ...TransitionPresets.SlideFromRightIOS,
         }}
+      />
+      <Stack.Screen
+        name="SplashScreen"
+        component={SplashScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Register"
+        component={Register}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Login"
+        component={Login}
+        options={{headerShown: false}}
       />
     </Stack.Navigator>
   );

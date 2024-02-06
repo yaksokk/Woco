@@ -1,24 +1,20 @@
-import React, {useState} from 'react';
-import {ScrollView, StyleSheet, Text, View, FlatList, TouchableOpacity} from 'react-native';
-import {Element3} from 'iconsax-react-native';
-import {BlogList, CategoryList} from '../../../data';
-import { fontType, colors } from '../../theme';
-import { ListHorizontal, ItemSmall } from '../../components';
+import React, {useState, useEffect} from 'react';
+import {ScrollView, StyleSheet, Text, View, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {Notification} from 'iconsax-react-native';
+import {CategoryList} from '../../../data';
+import {ItemSmall, ListHorizontal} from '../../components';
+import {fontType, colors} from '../../theme';
+import firestore from '@react-native-firebase/firestore';
 
-export default function Home() {
+const ItemCategory = ({item, onPress, color}) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>WOCO.</Text>
-        <Element3 color={colors.black()} variant="Linear" size={24} />
+    <TouchableOpacity onPress={onPress}>
+      <View style={category.item}>
+        <Text style={{...category.title, color}}>{item.categoryName}</Text>
       </View>
-      <View style={styles.listCategory}>
-        <FlatListCategory />
-      </View>
-      <ListBlog />
-    </View>
+    </TouchableOpacity>
   );
-}
+};
 const FlatListCategory = () => {
   const [selected, setSelected] = useState(1);
   const renderItem = ({item}) => {
@@ -44,32 +40,63 @@ const FlatListCategory = () => {
   );
 };
 
-const ItemCategory = ({item, onPress, color}) => {
+const Home = () => {
+  const [loading, setLoading] = useState(true);
+  const [blogData, setBlogData] = useState([]);
+  useEffect(() => {
+    const fetchBlogData = () => {
+      try {
+        const blogCollection = firestore().collection('blog');
+        const unsubscribeBlog = blogCollection.onSnapshot(querySnapshot => {
+          const blogs = querySnapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id,
+          }));
+          setBlogData(blogs);
+          setLoading(false);
+        });
+
+        return () => {
+          unsubscribeBlog();
+        };
+      } catch (error) {
+        console.error('Error fetching blog data:', error);
+      }
+    };
+    fetchBlogData();
+  }, []);
+
+  const horizontalData = blogData.slice(0, 5);
+  const verticalData = blogData.slice(5);
+  
   return (
-    <TouchableOpacity onPress={onPress}>
-      <View style={category.item}>
-        <Text style={{...category.title, color}}>{item.categoryName}</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>WOCO.</Text>
+        <Notification color={colors.black()} variant="Linear" size={24} />
       </View>
-    </TouchableOpacity>
+      <View style={styles.listCategory}>
+        <FlatListCategory />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {loading ? (
+            <ActivityIndicator size={'large'} color={colors.blue()} />
+          ) : (
+            <View style={styles.listBlog}>
+              <ListHorizontal data={horizontalData} />
+              <View style={styles.listCard}>
+                {verticalData.map((item, index) => (
+                  <ItemSmall item={item} key={index} />
+                ))}
+              </View>
+            </View>
+          )}
+        </ScrollView>
+      </View>
+    </View>
   );
 };
 
-const ListBlog = () => {
-  const horizontalData = BlogList.slice(0, 5);
-  const verticalData = BlogList.slice(5);
-  return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <View style={styles.listBlog}>
-        <ListHorizontal data={horizontalData} />
-        <View style={styles.listCard}>
-          {verticalData.map((item, index) => (
-            <ItemSmall item={item} key={index} />
-          ))}
-        </View>
-      </View>
-    </ScrollView>
-  );
-};
+export default Home;
 
 const styles = StyleSheet.create({
   container: {
@@ -81,10 +108,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
-    height:52,
+    height: 52,
     elevation: 8,
-    paddingTop:8,
-    paddingBottom:4
+    paddingTop: 8,
+    paddingBottom: 4,
   },
   title: {
     fontSize: 20,
@@ -104,7 +131,6 @@ const styles = StyleSheet.create({
     gap: 15,
   },
 });
-
 const category = StyleSheet.create({
   item: {
     paddingHorizontal: 14,
@@ -119,90 +145,3 @@ const category = StyleSheet.create({
     lineHeight: 18,
   },
 });
-
-
-const itemVertical = StyleSheet.create({
-  listCard: {
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    gap: 15,
-  },
-  cardItem: {
-    backgroundColor: colors.blue(0.03),
-    flexDirection: 'row',
-    borderRadius: 10,
-  },
-  cardCategory: {
-    color: colors.blue(),
-    fontSize: 10,
-    fontFamily: fontType['Pjs-SemiBold'],
-  },
-  cardTitle: {
-    fontSize: 14,
-    fontFamily: fontType['Pjs-Bold'],
-    color: colors.black(),
-  },
-  cardText: {
-    fontSize: 10,
-    fontFamily: fontType['Pjs-Medium'],
-    color: colors.blue(0.6),
-  },
-  cardImage: {
-    width: 94,
-    height: 94,
-    borderRadius: 10,
-    resizeMode: 'cover',
-  },
-  cardInfo: {
-    flexDirection: 'row',
-    gap: 5,
-    alignItems: 'center',
-  },
-  cardContent: {
-    gap: 10,
-    justifyContent: 'space-between',
-    paddingRight: 10,
-    paddingLeft: 15,
-    flex: 1,
-    paddingVertical: 10,
-  },
-});
-const itemHorizontal = StyleSheet.create({
-  cardItem: {
-    width: 280,
-  },
-  cardImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 5,
-  },
-  cardContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 15,
-  },
-  cardInfo: {
-    justifyContent: 'flex-end',
-    height: '100%',
-    gap: 10,
-    maxWidth: '60%',
-  },
-  cardTitle: {
-    fontFamily: fontType['Pjs-Bold'],
-    fontSize: 14,
-    color: colors.white(),
-  },
-  cardText: {
-    fontSize: 10,
-    color: colors.white(),
-    fontFamily: fontType['Pjs-Medium'],
-  },
-  cardIcon: {
-    backgroundColor: colors.white(0.33),
-    padding: 5,
-    borderColor: colors.white(),
-    borderWidth: 0.5,
-    borderRadius: 5,
-  },
-});
-
